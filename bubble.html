@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			.box {
+				width: 450px;
+				height: 300px;
+				border: 1px solid green;
+				position: relative;
+				overflow: hidden;
+			}
+			
+			.bubble {
+				background-image: url(img/blue.png);
+				background-size: contain;
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+			.redbubble {
+				background-image: url(img/red.png);
+				background-size: contain;
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="box"></div>
+		
+		<script type="text/javascript">
+			var bubbles = [];
+			var n = 10;
+			var box = document.querySelector(".box");
+			
+			function bubble() {
+				this.w = 20 + Math.random()*30;
+				this.h = this.w;
+				this.r = this.w/2;
+				this.x = Math.random()*(450 - this.w);
+				this.y = Math.random()*(300 - this.h);
+				this.v = 1 + Math.random()*5;
+				this.d = Math.random()*2*Math.PI;
+				this.div = document.createElement("div");
+				this.x0 = this.x + this.w;
+				this.y0 = this.y + this.h;
+				
+				this.init = function() {
+					this.div.className = "bubble";
+					this.div.style.width = this.w + "px";
+					this.div.style.height = this.h + "px";
+					this.div.style.top = this.y + "px";
+					this.div.style.left = this.x + "px";
+					box.appendChild(this.div);
+				}
+				
+				this.move = function(){
+					var x1 = this.x + Math.cos(this.d)*this.v;
+					var y1 = this.y + Math.sin(this.d)*this.v;
+					this.setPosition(x1,y1);
+				}
+					
+				this.setPosition = function(x1,y1) {
+					x1 = x1 < (-1*this.w) ? 450:x1;
+					x1 = x1 > 450 ? (-1*this.w):x1;
+					y1 = y1 < (-1*this.w) ? 300:y1;
+					y1 = y1 > 300 ? (-1*this.w):y1;
+					this.x0 = x1 + this.r;
+					this.y0 = y1 + this.r;
+					this.x = x1;
+					this.y = y1;
+					this.div.style.top = this.y + "px";
+					this.div.style.left = this.x + "px";
+				}
+				
+				this.strike = function() {
+					for(var i=0; i < bubbles.length; i++){
+						if(bubbles[i] != this){
+							var l2 = Math.pow((bubbles[i].x0 - this.x0),2) + Math.pow((bubbles[i].y0 - this.y0),2);
+							if(l2 <= Math.pow((bubbles[i].r + this.r),2)){
+								return bubbles[i];
+							}
+						}
+					}
+					return null;
+				}
+				
+			}
+			
+			
+			for(var i = 0; i < n; i++) {
+				var b = new bubble();
+				b.init();
+				bubbles.push(b);
+				
+			}
+
+			
+			var t = setInterval(function() {
+				for(var i = 0; i < bubbles.length; i++) {
+			 		bubbles[i].move();
+			 		var b = bubbles[i].strike();
+			 		if(b != null) {
+			 			var tmp = b.d;
+						b.d = bubbles[i].d;
+						bubbles[i].d = tmp;
+						while(b == bubbles[i].strike()) {
+				 			bubbles[i].move();
+				 		}
+			 		}
+				}
+				
+				red.move();
+				red.strike();
+				var a = red.strike();
+				if(a != null) {
+		 			var tmp = a.d;
+					a.d = red.d;
+					red.d = tmp;
+					while(a == red.strike()) {
+			 			red.move();
+			 		}
+		 		}
+				
+			},100)
+			
+			
+			var red = new bubble();
+			red.init();
+			red.div.className = "redbubble";
+		
+			box.onmousemove = function(e) {
+				var x = e.clientX - box.offsetLeft;
+				var y = e.clientY - box.offsetTop;
+				x = x - red.r;
+				y = y - red.r;
+				x = x<0?0:x;
+				x = x>(450-2*red.r)?(450-2*red.r):x;
+				y = y<0?0:y;
+				y = y>(300-2*red.r)?(300-2*red.r):y
+				red.setPosition(x,y)
+			}	
+			
+
+		</script>
+	</body>
+</html>
